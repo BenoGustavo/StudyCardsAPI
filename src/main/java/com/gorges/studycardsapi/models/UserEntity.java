@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gorges.studycardsapi.utils.enums.Roles;
 
 import jakarta.persistence.Column;
@@ -28,6 +29,8 @@ public class UserEntity {
     private String username;
     @Column(nullable = false, unique = true)
     private String email;
+
+    @JsonIgnore
     private String password;
     private Roles role;
 
