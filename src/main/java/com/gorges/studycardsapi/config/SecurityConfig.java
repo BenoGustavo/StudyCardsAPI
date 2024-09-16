@@ -12,14 +12,20 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.gorges.studycardsapi.error.filter.ExceptionHandlerFilter;
 import com.gorges.studycardsapi.filter.JwtAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
+
         @Autowired
         AuthenticationProvider authenticationProvider;
+
         @Autowired
         JwtAuthenticationFilter jwtAuthenticationFilter;
+
+        @Autowired
+        ExceptionHandlerFilter exceptionHandlerFilter;
 
         private final String[] WHITE_LIST = {
                         "/api/auth/**", "/", "/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**",
@@ -41,7 +47,11 @@ public class SecurityConfig {
                                 .sessionManagement(sessionManagement -> sessionManagement
                                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                                 .authenticationProvider(authenticationProvider)
-                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                                .addFilterAfter(exceptionHandlerFilter, JwtAuthenticationFilter.class); // Add the
+                                                                                                        // ExceptionHandlerFilter
+                                                                                                        // after
+                                                                                                        // JwtAuthenticationFilter
 
                 return http.build();
         }
