@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.gorges.studycardsapi.dto.AuthenticationDtos.LoginDto;
-import com.gorges.studycardsapi.dto.AuthenticationDtos.RegisterDto;
+import com.gorges.studycardsapi.dto.UserDto.Register;
 import com.gorges.studycardsapi.error.http.Unauthorized401Exception;
 import com.gorges.studycardsapi.models.UserEntity;
 import com.gorges.studycardsapi.repositories.UserRepository;
@@ -27,8 +27,8 @@ public class AuthenticationService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    public UserEntity signup(@RequestBody RegisterDto registerDto) throws IllegalArgumentException {
-        UserEntity userEntity = registerDto.toEntity();
+    public UserEntity signup(@RequestBody Register Register) throws IllegalArgumentException {
+        UserEntity userEntity = Register.toEntity();
         userEntity.setRole(Roles.ROLE_USER);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
 
