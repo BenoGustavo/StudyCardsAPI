@@ -27,9 +27,9 @@ public class SwaggerConfig {
         public OpenAPI customOpenAPI() {
                 return new OpenAPI()
                                 .info(new Info()
-                                                .title("All in One Converter API")
+                                                .title("Study Cards API Swagger Docs")
                                                 .version("1.0")
-                                                .description("An all-in-one API for converting units")
+                                                .description("A simple API to manage study cards")
                                                 .termsOfService("http://swagger.io/terms/")
                                                 .license(new License().name("Apache 2.0").url("http://springdoc.org")));
                 // .addSecurityItem(new SecurityRequirement().addList("bearerAuth"))
