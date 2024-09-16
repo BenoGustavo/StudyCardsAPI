@@ -10,7 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.gorges.studycardsapi.dto.AuthenticationDtos.RegisterDto;
+import com.gorges.studycardsapi.dto.UserDto.Register;
 import com.gorges.studycardsapi.error.http.NotFound404Exception;
 import com.gorges.studycardsapi.error.http.Unauthorized401Exception;
 import com.gorges.studycardsapi.error.http.UserAlreadyDeletedException;
@@ -25,7 +25,7 @@ public class UserService {
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    public UserEntity create(RegisterDto user, Roles role) {
+    public UserEntity create(Register user, Roles role) {
         UserEntity userEntity = user.toEntity();
         userEntity.setRole(role);
         userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
