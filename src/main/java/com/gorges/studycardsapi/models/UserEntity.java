@@ -39,17 +39,4 @@ public class UserEntity {
     @Column(nullable = true, name = "deleteAt")
     private LocalDateTime deleteAt;
     private LocalDateTime lastLogin;
-
-    // public UserDto toDto() {
-    // UserDto userDto = new UserDto();
-    // userDto.setId(this.id);
-    // userDto.setUsername(this.username);
-    // userDto.setEmail(this.email);
-    // userDto.setRole(this.role);
-    // userDto.setCreatedAt(this.createdAt);
-    // userDto.setUpdatedAt(this.updatedAt);
-    // userDto.setDeleteAt(this.deleteAt);
-    // userDto.setLastLogin(this.lastLogin);
-    // return userDto;
-    // }
 }
