@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gorges.studycardsapi.dto.AuthenticationDtos.RegisterDto;
+import com.gorges.studycardsapi.dto.UserDto.Register;
 import com.gorges.studycardsapi.error.http.BadRequest400Exception;
 import com.gorges.studycardsapi.models.UserEntity;
 import com.gorges.studycardsapi.responses.Response;
@@ -28,7 +28,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/admin/create")
-    public ResponseEntity<Response<UserEntity>> create(@RequestBody RegisterDto user, @RequestParam Roles role) {
+    public ResponseEntity<Response<UserEntity>> create(@RequestBody Register user, @RequestParam Roles role) {
         if (role == null) {
             throw new BadRequest400Exception("Role is required as request parameter");
         }
