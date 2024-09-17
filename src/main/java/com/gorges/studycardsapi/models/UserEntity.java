@@ -34,6 +34,9 @@ public class UserEntity {
     private String password;
     private Roles role;
 
+    @Column(nullable = false)
+    private boolean isEnabled;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
