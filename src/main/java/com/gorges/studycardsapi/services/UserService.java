@@ -29,7 +29,9 @@ public class UserService {
         UserEntity userEntity = user.toEntity();
         userEntity.setRole(role);
         userEntity.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(userEntity);
+        userEntity.setEnabled(true);
+
+        return userEntity;
     }
 
     // Get active users
