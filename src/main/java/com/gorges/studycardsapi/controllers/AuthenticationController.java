@@ -31,15 +31,15 @@ public class AuthenticationController {
         private JwtUtil jwtUtil;
 
         @PostMapping("/signup")
-        public ResponseEntity<Response<UserEntity>> signup(@RequestBody Register registerDto)
+        public ResponseEntity<Response<String>> signup(@RequestBody Register registerDto)
                         throws IllegalArgumentException {
 
-                UserEntity userEntity = authenticationService.signup(registerDto);
+                String confirmationMessage = authenticationService.signup(registerDto);
 
-                Response<UserEntity> response = new Response.Builder<UserEntity>()
+                Response<String> response = new Response.Builder<String>()
                                 .message("Success")
                                 .status(200)
-                                .data(userEntity)
+                                .data(confirmationMessage)
                                 .build();
 
                 return ResponseEntity.ok(response);
@@ -67,9 +67,15 @@ public class AuthenticationController {
         }
 
         @GetMapping("/verify-email")
-        public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
+        public ResponseEntity<Response<String>> verifyEmail(@RequestParam("token") String token) {
                 tokenService.findByToken(token);
 
-                return ResponseEntity.ok("Email successfully verified");
+                Response<String> response = new Response.Builder<String>()
+                                .message("Success")
+                                .status(200)
+                                .data("Email successfully verified")
+                                .build();
+
+                return ResponseEntity.ok(response);
         }
 }

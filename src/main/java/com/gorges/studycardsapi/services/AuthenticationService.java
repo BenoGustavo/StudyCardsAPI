@@ -31,7 +31,7 @@ public class AuthenticationService {
     @Autowired
     EmailService emailService;
 
-    public UserEntity signup(@RequestBody Register Register) throws IllegalArgumentException {
+    public String signup(@RequestBody Register Register) throws IllegalArgumentException {
         UserEntity userEntity = Register.toEntity();
         userEntity.setRole(Roles.ROLE_USER);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
@@ -41,7 +41,7 @@ public class AuthenticationService {
 
         emailService.sendVerificationEmail(newUser, tokenService.createVerificationToken(newUser).getToken());
 
-        return userRepository.save(userEntity);
+        return "A email has been sent to your email address. Please verify your email address to login";
     }
 
     public UserEntity authenticate(LoginDto loginDto) throws AuthenticationException, UsernameNotFoundException {
