@@ -2,9 +2,11 @@ package com.gorges.studycardsapi.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gorges.studycardsapi.dto.AuthenticationDtos.LoginDto;
@@ -14,12 +16,16 @@ import com.gorges.studycardsapi.jwt.JwtUtil;
 import com.gorges.studycardsapi.models.UserEntity;
 import com.gorges.studycardsapi.responses.Response;
 import com.gorges.studycardsapi.services.AuthenticationService;
+import com.gorges.studycardsapi.services.VerificationTokenService;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthenticationController {
         @Autowired
         private AuthenticationService authenticationService;
+
+        @Autowired
+        private VerificationTokenService tokenService;
 
         @Autowired
         private JwtUtil jwtUtil;
@@ -58,5 +64,12 @@ public class AuthenticationController {
                                 .build();
 
                 return ResponseEntity.ok(response);
+        }
+
+        @GetMapping("/verify-email")
+        public ResponseEntity<String> verifyEmail(@RequestParam("token") String token) {
+                tokenService.findByToken(token);
+
+                return ResponseEntity.ok("Email successfully verified");
         }
 }

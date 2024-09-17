@@ -26,11 +26,20 @@ public class AuthenticationService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    VerificationTokenService tokenService;
+    @Autowired
+    EmailService emailService;
 
     public UserEntity signup(@RequestBody Register Register) throws IllegalArgumentException {
         UserEntity userEntity = Register.toEntity();
         userEntity.setRole(Roles.ROLE_USER);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
+
+        userEntity.setEnabled(false);
+        UserEntity newUser = userRepository.save(userEntity);
+
+        emailService.sendVerificationEmail(newUser, tokenService.createVerificationToken(newUser).getToken());
 
         return userRepository.save(userEntity);
     }
