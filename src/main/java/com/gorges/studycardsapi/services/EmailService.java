@@ -20,6 +20,20 @@ public class EmailService {
     @Value("${spring.app.host}")
     private String host;
 
+    public void sendRecoverPasswordEmail(UserEntity user, String token) {
+        String recipientAddress = user.getEmail();
+        String subject = "Recuperação de senha";
+        String confirmationUrl = host + "/api/auth/validate-recover-password?token=" + token;
+        String message = "Clique no link para recuperar sua senha:\n" + confirmationUrl;
+
+        SimpleMailMessage email = new SimpleMailMessage();
+        email.setFrom(from);
+        email.setTo(recipientAddress);
+        email.setSubject(subject);
+        email.setText(message);
+        mailSender.send(email);
+    }
+
     public void sendVerificationEmail(UserEntity user, String token) {
 
         String recipientAddress = user.getEmail();
