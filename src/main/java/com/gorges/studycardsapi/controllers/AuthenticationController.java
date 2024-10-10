@@ -11,12 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gorges.studycardsapi.dto.AuthenticationDtos.LoginDto;
 import com.gorges.studycardsapi.dto.AuthenticationDtos.TokenDto;
+import com.gorges.studycardsapi.dto.RecoverPasswordRequest;
 import com.gorges.studycardsapi.dto.UserDto.Register;
 import com.gorges.studycardsapi.jwt.JwtUtil;
 import com.gorges.studycardsapi.models.UserEntity;
+import com.gorges.studycardsapi.models.VerificationTokenEntity;
 import com.gorges.studycardsapi.responses.Response;
 import com.gorges.studycardsapi.services.AuthenticationService;
 import com.gorges.studycardsapi.services.VerificationTokenService;
+import com.gorges.studycardsapi.utils.enums.Token;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -66,9 +69,54 @@ public class AuthenticationController {
                 return ResponseEntity.ok(response);
         }
 
+        @PostMapping("/send-recover-password-token")
+        public ResponseEntity<Response<String>> sendRecoverPasswordToken(@RequestParam("email") String email) {
+                authenticationService.sendRecoverPasswordToken(email);
+
+                Response<String> response = new Response.Builder<String>()
+                                .message("Success")
+                                .status(200)
+                                .data("Recover password token sent to " + email)
+                                .build();
+
+                return ResponseEntity.ok(response);
+        }
+
+        @GetMapping("/validate-recover-password")
+        public ResponseEntity<Response<String>> validateRecoverPasswordToken(@RequestParam("token") String token) {
+                tokenService.findByToken(token, Token.PASSWORD_RECOVERY);
+
+                Response<String> response = new Response.Builder<String>()
+                                .message("Success")
+                                .status(200)
+                                .data("Password recovery token is valid")
+                                .build();
+
+                return ResponseEntity.ok(response);
+        }
+
+        @PostMapping("/recover-password")
+        public ResponseEntity<Response<String>> recoverPassword(@RequestBody RecoverPasswordRequest request) {
+
+                VerificationTokenEntity validatedToken = tokenService.findByToken(request.getToken(),
+                                Token.PASSWORD_RECOVERY);
+
+                authenticationService.recoverPassword(request.getToken(), request.getPassword());
+
+                Response<String> response = new Response.Builder<String>()
+                                .message("Success")
+                                .status(200)
+                                .data("Password successfully recovered")
+                                .build();
+
+                tokenService.deleteToken(validatedToken);
+
+                return ResponseEntity.ok(response);
+        }
+
         @GetMapping("/verify-email")
         public ResponseEntity<Response<String>> verifyEmail(@RequestParam("token") String token) {
-                tokenService.findByToken(token);
+                VerificationTokenEntity validatedToken = tokenService.findByToken(token, Token.ACCOUNT_VALIDATION);
 
                 Response<String> response = new Response.Builder<String>()
                                 .message("Success")
@@ -76,6 +124,7 @@ public class AuthenticationController {
                                 .data("Email successfully verified")
                                 .build();
 
+                tokenService.deleteToken(validatedToken);
                 return ResponseEntity.ok(response);
         }
 }

@@ -15,6 +15,7 @@ import com.gorges.studycardsapi.models.UserEntity;
 import com.gorges.studycardsapi.models.VerificationTokenEntity;
 import com.gorges.studycardsapi.repositories.VerificationTokenRepository;
 import com.gorges.studycardsapi.utils.enums.Roles;
+import com.gorges.studycardsapi.utils.enums.Token;
 
 @Service
 public class VerificationTokenService {
@@ -33,17 +34,28 @@ public class VerificationTokenService {
     @Autowired
     private VerificationTokenRepository tokenRepository;
 
-    public VerificationTokenEntity createVerificationToken(UserEntity user) {
+    public VerificationTokenEntity createVerificationToken(UserEntity user, Token tokenType) {
         VerificationTokenEntity token = new VerificationTokenEntity();
         token.setUser(user);
         token.setToken(UUID.randomUUID().toString());
+        token.setTokenType(tokenType);
         token.setExpiryDate(LocalDateTime.now().plusHours(tokenExpiryHours));
         tokenRepository.save(token);
         return token;
     }
 
+    public void sendRecoverPasswordToken(UserEntity user) {
+        VerificationTokenEntity token = createVerificationToken(user, Token.PASSWORD_RECOVERY);
+        emailService.sendRecoverPasswordEmail(user, token.getToken());
+    }
+
+    public void resendRecoverPasswordToken(UserEntity user) {
+        VerificationTokenEntity token = createVerificationToken(user, Token.PASSWORD_RECOVERY);
+        emailService.sendRecoverPasswordEmail(user, token.getToken());
+    }
+
     public void resendVerificationEmail(UserEntity user) {
-        VerificationTokenEntity token = createVerificationToken(user);
+        VerificationTokenEntity token = createVerificationToken(user, Token.ACCOUNT_VALIDATION);
         emailService.sendVerificationEmail(user, token.getToken());
     }
 
@@ -51,8 +63,12 @@ public class VerificationTokenService {
         return token.getExpiryDate().isBefore(LocalDateTime.now());
     }
 
-    public VerificationTokenEntity findByToken(String token) {
-        Optional<VerificationTokenEntity> verificationToken = tokenRepository.findByToken(token);
+    public void deleteToken(VerificationTokenEntity token) {
+        tokenRepository.delete(token);
+    }
+
+    public VerificationTokenEntity findByToken(String token, Token tokenType) {
+        Optional<VerificationTokenEntity> verificationToken = tokenRepository.findByTokenAndTokenType(token, tokenType);
 
         if (!verificationToken.isPresent()) {
             throw new BadRequest400Exception("Invalid verification token");
@@ -64,13 +80,15 @@ public class VerificationTokenService {
             throw new BadRequest400Exception("Verification token has expired");
         }
 
-        UserEntity user = tokenEntity.getUser();
-        user.setEnabled(true);
+        if (tokenType == Token.ACCOUNT_VALIDATION) {
+            UserEntity user = tokenEntity.getUser();
+            user.setEnabled(true);
 
-        Register newUserRegister = new Register(user.getUsername(), user.getEmail(), user.getPassword(),
-                user.getPassword());
+            Register newUserRegister = new Register(user.getUsername(), user.getEmail(), user.getPassword(),
+                    user.getPassword());
 
-        userService.create(newUserRegister, Roles.ROLE_USER);
+            userService.create(newUserRegister, Roles.ROLE_USER);
+        }
 
         return tokenEntity;
     }

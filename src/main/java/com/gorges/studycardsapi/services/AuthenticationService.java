@@ -1,5 +1,7 @@
 package com.gorges.studycardsapi.services;
 
+import java.time.LocalDateTime;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,8 +17,10 @@ import com.gorges.studycardsapi.dto.AuthenticationDtos.LoginDto;
 import com.gorges.studycardsapi.dto.UserDto.Register;
 import com.gorges.studycardsapi.error.http.Unauthorized401Exception;
 import com.gorges.studycardsapi.models.UserEntity;
+import com.gorges.studycardsapi.models.VerificationTokenEntity;
 import com.gorges.studycardsapi.repositories.UserRepository;
 import com.gorges.studycardsapi.utils.enums.Roles;
+import com.gorges.studycardsapi.utils.enums.Token;
 
 @Service
 public class AuthenticationService {
@@ -39,9 +43,29 @@ public class AuthenticationService {
         userEntity.setEnabled(false);
         UserEntity newUser = userRepository.save(userEntity);
 
-        emailService.sendVerificationEmail(newUser, tokenService.createVerificationToken(newUser).getToken());
+        emailService.sendVerificationEmail(newUser,
+                tokenService.createVerificationToken(newUser, Token.ACCOUNT_VALIDATION).getToken());
 
         return "A email has been sent to your email address. Please verify your email address to login";
+    }
+
+    public void sendRecoverPasswordToken(String email) {
+        UserEntity user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        tokenService.sendRecoverPasswordToken(user);
+    }
+
+    public void recoverPassword(String token, String newPassword) {
+        VerificationTokenEntity verificationToken = tokenService.findByToken(token, Token.PASSWORD_RECOVERY);
+
+        if (verificationToken.getExpiryDate().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("Token expired");
+        }
+
+        UserEntity user = verificationToken.getUser();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 
     public UserEntity authenticate(LoginDto loginDto) throws AuthenticationException, UsernameNotFoundException {
