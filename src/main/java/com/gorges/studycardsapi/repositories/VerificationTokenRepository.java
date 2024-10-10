@@ -1,5 +1,6 @@
 package com.gorges.studycardsapi.repositories;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,4 +13,6 @@ public interface VerificationTokenRepository extends JpaRepository<VerificationT
     Optional<VerificationTokenEntity> findByToken(String token);
 
     Optional<VerificationTokenEntity> findByTokenAndTokenType(String token, Token tokenType);
+
+    Optional<List<VerificationTokenEntity>> findByUserIdAndTokenType(UUID userId, Token tokenType);
 }

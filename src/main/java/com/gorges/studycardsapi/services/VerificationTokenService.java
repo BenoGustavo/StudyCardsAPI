@@ -1,6 +1,7 @@
 package com.gorges.studycardsapi.services;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,11 +46,24 @@ public class VerificationTokenService {
     }
 
     public void sendRecoverPasswordToken(UserEntity user) {
-        VerificationTokenEntity token = createVerificationToken(user, Token.PASSWORD_RECOVERY);
-        emailService.sendRecoverPasswordEmail(user, token.getToken());
-    }
+        VerificationTokenEntity validToken = null;
+        // Finds and deletes all the older password recovery tokens
+        Optional<List<VerificationTokenEntity>> tokens = tokenRepository.findByUserIdAndTokenType(user.getId(),
+                Token.PASSWORD_RECOVERY);
 
-    public void resendRecoverPasswordToken(UserEntity user) {
+        for (VerificationTokenEntity token : tokens.get()) {
+            if (!isTokenExpired(token)) {
+                validToken = token;
+            }
+            deleteToken(token);
+        }
+
+        if (validToken != null) {
+            emailService.sendRecoverPasswordEmail(user, validToken.getToken());
+            return;
+        }
+
+        // Create a new one and sends to the user
         VerificationTokenEntity token = createVerificationToken(user, Token.PASSWORD_RECOVERY);
         emailService.sendRecoverPasswordEmail(user, token.getToken());
     }

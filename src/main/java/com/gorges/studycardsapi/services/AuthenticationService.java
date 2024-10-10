@@ -31,9 +31,9 @@ public class AuthenticationService {
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
-    VerificationTokenService tokenService;
+    private VerificationTokenService tokenService;
     @Autowired
-    EmailService emailService;
+    private EmailService emailService;
 
     public String signup(@RequestBody Register Register) throws IllegalArgumentException {
         UserEntity userEntity = Register.toEntity();
