@@ -6,7 +6,10 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.gorges.studycardsapi.models.VerificationTokenEntity;
+import com.gorges.studycardsapi.utils.enums.Token;
 
 public interface VerificationTokenRepository extends JpaRepository<VerificationTokenEntity, UUID> {
     Optional<VerificationTokenEntity> findByToken(String token);
+
+    Optional<VerificationTokenEntity> findByTokenAndTokenType(String token, Token tokenType);
 }
