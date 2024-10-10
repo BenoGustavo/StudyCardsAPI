@@ -3,6 +3,8 @@ package com.gorges.studycardsapi.models;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+import com.gorges.studycardsapi.utils.enums.Token;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -22,11 +24,14 @@ public class VerificationTokenEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(nullable = false)
+    private Token tokenType;
+
     @Column(nullable = false, unique = true)
     private String token;
 
     @OneToOne(targetEntity = UserEntity.class, fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false, name = "user_id")
+    @JoinColumn(nullable = false, name = "user_id", unique = false)
     private UserEntity user;
 
     @Column(nullable = false)
