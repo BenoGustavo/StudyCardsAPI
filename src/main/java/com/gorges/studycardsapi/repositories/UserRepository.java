@@ -25,6 +25,11 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
 
     @Modifying
     @Transactional
+    @Query("DELETE FROM VerificationTokenEntity v WHERE v.user = :user")
+    void deleteAllUserTokens(@Param("user") UserEntity user);
+
+    @Modifying
+    @Transactional
     @Query("UPDATE UserEntity u SET u.lastLogin = CURRENT_TIMESTAMP WHERE u.id = :id")
     void updateLastLogin(@Param("id") UUID id);
 }

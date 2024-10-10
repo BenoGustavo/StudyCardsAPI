@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.gorges.studycardsapi.dto.AuthenticationDtos.LoginDto;
 import com.gorges.studycardsapi.dto.UserDto.Register;
+import com.gorges.studycardsapi.error.http.BadRequest400Exception;
 import com.gorges.studycardsapi.error.http.Unauthorized401Exception;
 import com.gorges.studycardsapi.models.UserEntity;
 import com.gorges.studycardsapi.models.VerificationTokenEntity;
@@ -36,11 +37,25 @@ public class AuthenticationService {
     private EmailService emailService;
 
     public String signup(@RequestBody Register Register) throws IllegalArgumentException {
+        UserEntity user = userRepository.findByEmail(Register.getEmail()).orElse(null);
+        boolean isEmailInUse = user == null;
+        boolean isAccountActivated = user != null && user.isEnabled();
+
+        if (isEmailInUse && isAccountActivated) {
+            throw new BadRequest400Exception("Email already in use");
+        }
+
+        if (!isAccountActivated && user != null) {
+            userRepository.deleteAllUserTokens(user);
+            userRepository.delete(user);
+        }
+
         UserEntity userEntity = Register.toEntity();
         userEntity.setRole(Roles.ROLE_USER);
         userEntity.setPassword(passwordEncoder.encode(userEntity.getPassword()));
 
         userEntity.setEnabled(false);
+
         UserEntity newUser = userRepository.save(userEntity);
 
         emailService.sendVerificationEmail(newUser,
@@ -83,6 +98,10 @@ public class AuthenticationService {
 
         UserEntity user = userRepository.findByEmail(loginDto.getEmail())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        if (!user.isEnabled()) {
+            throw new Unauthorized401Exception("Account not verified, check your email adress or signup");
+        }
 
         if (user.getDeleteAt() != null) {
             throw new Unauthorized401Exception("Deleted user");
