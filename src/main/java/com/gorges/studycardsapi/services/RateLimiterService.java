@@ -2,6 +2,7 @@ package com.gorges.studycardsapi.services;
 
 import java.time.Duration;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import io.github.bucket4j.Bandwidth;
@@ -12,8 +13,13 @@ import io.github.bucket4j.Refill;
 public class RateLimiterService {
     private final Bucket bucket;
 
-    public RateLimiterService() {
-        Bandwidth limit = Bandwidth.classic(10, Refill.intervally(10, Duration.ofMinutes(1)));
+    public RateLimiterService(
+            @Value("${ratelimiter.capacity}") int capacity,
+            @Value("${ratelimiter.refillTokens}") int refillTokens,
+            @Value("${ratelimiter.refillPeriod}") int refillPeriod) {
+
+        Bandwidth limit = Bandwidth.classic(capacity,
+                Refill.intervally(refillTokens, Duration.ofMinutes(refillPeriod)));
 
         this.bucket = Bucket.builder()
                 .addLimit(limit)
@@ -22,7 +28,6 @@ public class RateLimiterService {
 
     public boolean isRateLimited() {
         boolean allowed = bucket.tryConsume(1);
-        System.out.println("Allowed: " + allowed + ", Remaining Tokens: " + bucket.getAvailableTokens());
         return !allowed;
     }
 }
