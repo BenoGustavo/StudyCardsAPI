@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.gorges.studycardsapi.dto.UserDto.Register;
+import com.gorges.studycardsapi.error.http.BadRequest400Exception;
 import com.gorges.studycardsapi.error.http.NotFound404Exception;
 import com.gorges.studycardsapi.error.http.Unauthorized401Exception;
 import com.gorges.studycardsapi.error.http.UserAlreadyDeletedException;
@@ -26,6 +27,10 @@ public class UserService {
     PasswordEncoder passwordEncoder;
 
     public UserEntity create(Register user, Roles role) {
+        if (role == null) {
+            throw new BadRequest400Exception("Role is required as request parameter");
+        }
+
         UserEntity userEntity = user.toEntity();
         userEntity.setRole(role);
         userEntity.setPassword(passwordEncoder.encode(user.getPassword()));

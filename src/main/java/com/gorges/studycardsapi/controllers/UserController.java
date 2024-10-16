@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gorges.studycardsapi.dto.UserDto.Register;
-import com.gorges.studycardsapi.error.http.BadRequest400Exception;
 import com.gorges.studycardsapi.models.UserEntity;
 import com.gorges.studycardsapi.responses.Response;
 import com.gorges.studycardsapi.services.UserService;
@@ -29,10 +28,6 @@ public class UserController {
 
     @PostMapping("/admin/create")
     public ResponseEntity<Response<UserEntity>> create(@RequestBody Register user, @RequestParam Roles role) {
-        if (role == null) {
-            throw new BadRequest400Exception("Role is required as request parameter");
-        }
-
         UserEntity result = userService.create(user, role);
 
         Response<UserEntity> response = new Response.Builder<UserEntity>()
