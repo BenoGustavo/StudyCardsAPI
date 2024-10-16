@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class ExceptionHandlerFilter extends OncePerRequestFilter {
 
+    @SuppressWarnings("null")
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
