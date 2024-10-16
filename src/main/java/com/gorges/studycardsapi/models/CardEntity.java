@@ -6,6 +6,8 @@ import java.util.UUID;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.gorges.studycardsapi.utils.enums.CardTypes;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -42,13 +44,7 @@ public class CardEntity {
     private boolean isPublic;
 
     @Column(nullable = false)
-    private boolean IsAnswarable;
-
-    @Column(nullable = false)
-    private boolean isMultipleChoice;
-
-    @Column(nullable = false)
-    private boolean isDissertative;
+    private CardTypes cardAnswerType;
 
     @CreationTimestamp
     @Column(updatable = false)

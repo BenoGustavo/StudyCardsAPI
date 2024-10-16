@@ -1,6 +1,8 @@
 package com.gorges.studycardsapi.dto;
 
-import com.gorges.studycardsapi.models.CardCollectionEntity;
+import java.util.UUID;
+
+import com.gorges.studycardsapi.utils.enums.CardTypes;
 
 import lombok.Data;
 
@@ -9,11 +11,9 @@ public class CardDto {
     public static class Card {
         String question;
         String answer;
-        CardCollectionEntity collection;
+        UUID collection;
         boolean isPublic;
-        boolean isAnswarable;
-        boolean isMultipleChoice;
-        boolean isDissertative;
+        CardTypes cardAnswerType;
     }
 
     @Data
@@ -27,7 +27,7 @@ public class CardDto {
     public static class CardRequest {
         String question;
         String answer;
-        CardCollectionEntity collection;
+        UUID collection;
         boolean isPublic;
         boolean isAnswarable;
         boolean isMultipleChoice;
