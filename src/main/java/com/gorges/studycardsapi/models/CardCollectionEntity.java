@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -34,4 +35,11 @@ public class CardCollectionEntity {
 
     @OneToMany(mappedBy = "collection")
     private List<CardRequestEntity> cardRequests;
+
+    @ManyToMany(mappedBy = "favoritedCardCollections")
+    private List<UserEntity> favoritedByUsers;
+
+    public int getFavoritesCount() {
+        return favoritedByUsers.size();
+    }
 }

@@ -1,6 +1,8 @@
 package com.gorges.studycardsapi.models;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Stack;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -14,6 +16,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
@@ -27,11 +33,13 @@ public class UserEntity {
 
     @Column(nullable = false, unique = true)
     private String username;
+
     @Column(nullable = false, unique = true)
     private String email;
 
     @JsonIgnore
     private String password;
+
     private Roles role;
 
     @Column(nullable = false)
@@ -40,9 +48,46 @@ public class UserEntity {
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
+
     @UpdateTimestamp
     private LocalDateTime updatedAt;
+
     @Column(nullable = true, name = "deleteAt")
     private LocalDateTime deleteAt;
+
     private LocalDateTime lastLogin;
+
+    @OneToMany
+    @JoinColumn(name = "user_id")
+    private Stack<CardCollectionEntity> cardCollectionHistory = new Stack<>();
+
+    @ManyToMany
+    @JoinTable(name = "user_favorite_card_collections", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "card_collection_id"))
+    private List<CardCollectionEntity> favoritedCardCollections;
+
+    @OneToMany(mappedBy = "owner")
+    private List<CardCollectionEntity> ownedCardCollections;
+
+    // Methods to manage card history and favorited cards...
+    public void addToCardCollectionHistory(CardCollectionEntity card) {
+        cardCollectionHistory.push(card);
+    }
+
+    public CardCollectionEntity removeFromCardCollectionHistory() {
+        return cardCollectionHistory.isEmpty() ? null : cardCollectionHistory.pop();
+    }
+
+    public void addToFavoritedCards(CardCollectionEntity card) {
+        if (!favoritedCardCollections.contains(card)) {
+            favoritedCardCollections.add(card);
+        }
+    }
+
+    public void removeFromFavoritedCards(CardCollectionEntity card) {
+        favoritedCardCollections.remove(card);
+    }
+
+    public List<CardCollectionEntity> getOwnedCards() {
+        return ownedCardCollections;
+    }
 }
