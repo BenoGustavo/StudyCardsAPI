@@ -32,24 +32,17 @@ public class CardService {
     private JwtUtil jwtUtil;
 
     public CardEntity create(Card cardDTO) {
-        UUID currentUserId = jwtUtil.getCurrentUserId();
-        boolean isUserOwnerOfTheCardCollection = cardDTO.getCollection().equals(currentUserId);
-
-        // Validate if the user is the owner of the card
-        if (!isUserOwnerOfTheCardCollection) {
-            throw new BadRequest400Exception(
-                    "You are not the owner of this collection, if you want to add a new card, please create a request instead!");
-        }
+        String currentUserEmail = jwtUtil.getCurrentUserEmail();
 
         // Validate if card already exists in the collection
-        List<CardEntity> cards = cardRepository.findByCardCollectionIdAndDeletedAtIsNull(cardDTO.getCollection());
+        List<CardEntity> cards = cardRepository.findByCollectionIdAndDeletedAtIsNull(cardDTO.getCollection());
         cards.forEach(card -> {
             if (card.getQuestion().equals(cardDTO.getQuestion())) {
                 throw new BadRequest400Exception("This question already exists in this collection");
             }
         });
 
-        UserEntity cardOwner = userRepository.findById(currentUserId)
+        UserEntity cardOwner = userRepository.findByEmail(currentUserEmail)
                 .orElseThrow(() -> new NotFound404Exception("User not found"));
 
         // Creates a new card
@@ -71,16 +64,16 @@ public class CardService {
     }
 
     public CardEntity update(UUID id, Card cardDTO) {
-        UUID currentUserId = jwtUtil.getCurrentUserId();
+        String currentUserEmail = jwtUtil.getCurrentUserEmail();
         CardEntity card = cardRepository.findById(id).orElseThrow(() -> new NotFound404Exception("Card not found"));
 
         // Validate if the user is the owner of the card
-        if (!card.getOwner().getId().equals(currentUserId)) {
+        if (!card.getOwner().getId().equals(userRepository.findByEmail(currentUserEmail).get().getId())) {
             throw new BadRequest400Exception("You are not the owner of this card");
         }
 
         // Validate if card already exists in the collection
-        List<CardEntity> cards = cardRepository.findByCardCollectionIdAndDeletedAtIsNull(cardDTO.getCollection());
+        List<CardEntity> cards = cardRepository.findByCollectionIdAndDeletedAtIsNull(cardDTO.getCollection());
         cards.forEach(c -> {
             if (c.getQuestion().equals(cardDTO.getQuestion()) && !c.getId().equals(id)) {
                 throw new BadRequest400Exception("This question already exists in this collection");
@@ -106,15 +99,15 @@ public class CardService {
     }
 
     public CardEntity delete(UUID id) {
-        UUID currentUserId = jwtUtil.getCurrentUserId();
+        String currentUserEmail = jwtUtil.getCurrentUserEmail();
         CardEntity card = cardRepository.findById(id).orElseThrow(() -> new NotFound404Exception("Card not found"));
 
         // Validate if the user is the owner of the card
-        if (!card.getOwner().getId().equals(currentUserId)) {
+        if (!card.getOwner().getEmail().equals(currentUserEmail)) {
             throw new BadRequest400Exception("You are not the owner of this card");
         }
 
-        card.setDeleteAt(LocalDateTime.now());
+        card.setDeletedAt(LocalDateTime.now());
 
         cardRepository.save(card);
         return card;
@@ -131,7 +124,8 @@ public class CardService {
     }
 
     public List<CardEntity> getMyCards() {
-        UUID currentUserId = jwtUtil.getCurrentUserId();
+        UUID currentUserId = userRepository.findByEmail(jwtUtil.getCurrentUserEmail()).orElseThrow(
+                () -> new NotFound404Exception("User not found")).getId();
         return cardRepository.findByOwnerIdAndDeletedAtIsNull(currentUserId);
     }
 
