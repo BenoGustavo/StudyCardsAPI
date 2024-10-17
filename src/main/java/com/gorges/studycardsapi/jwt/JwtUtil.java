@@ -2,10 +2,10 @@ package com.gorges.studycardsapi.jwt;
 
 import java.util.Base64;
 import java.util.Date;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -161,14 +161,25 @@ public class JwtUtil {
         return extractClaims(token).getExpiration().before(new Date());
     }
 
-    public UUID getCurrentUserId() throws Unauthorized401Exception {
+    public String getCurrentUserEmail() throws Unauthorized401Exception {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication != null && authentication.getPrincipal() instanceof UserEntity) {
-            return ((UserEntity) authentication.getPrincipal()).getId();
+        if (authentication != null && authentication.isAuthenticated()) {
+            System.out.println("\n\nAuthentication: " + authentication.getName() + "\n\n");
+            return authentication.getName();
         }
 
         throw new Unauthorized401Exception("User is not authenticated");
+    }
+
+    public boolean isUserAuthenticated(Authentication authentication) {
+        System.out.println("\n\nAuthentication: " + authentication + "\n\n");
+
+        if (authentication instanceof UsernamePasswordAuthenticationToken token) {
+            boolean isAuthenticated = token.isAuthenticated();
+            return isAuthenticated;
+        }
+
+        return false;
     }
 
     /**

@@ -20,7 +20,6 @@ public class CardDto {
     public static class CardCollection {
         String subject;
         String description;
-        String owner;
     }
 
     @Data
