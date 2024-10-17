@@ -15,7 +15,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 public class SwaggerConfig {
 
         private static final String[] END_POINTS = {
-                        "/api/convert/**", "/api/user/**", "/api/auth/**"
+                        "/api/convert/**", "/api/user/**", "/api/auth/**", "/api/card-collection/**"
         };
 
         @Bean
