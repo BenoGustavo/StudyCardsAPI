@@ -38,8 +38,4 @@ public class CardCollectionEntity {
 
     @ManyToMany(mappedBy = "favoritedCardCollections")
     private List<UserEntity> favoritedByUsers;
-
-    public int getFavoritesCount() {
-        return favoritedByUsers.size();
-    }
 }
