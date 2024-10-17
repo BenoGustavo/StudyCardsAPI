@@ -51,6 +51,6 @@ public class CardEntity {
     private LocalDateTime createdAt;
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-    @Column(nullable = true, name = "deleteAt")
-    private LocalDateTime deleteAt;
+    @Column(nullable = true, name = "deletedAt")
+    private LocalDateTime deletedAt;
 }
