@@ -2,7 +2,6 @@ package com.gorges.studycardsapi.models;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Stack;
 import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
@@ -11,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.gorges.studycardsapi.utils.enums.Roles;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -57,9 +57,8 @@ public class UserEntity {
 
     private LocalDateTime lastLogin;
 
-    @OneToMany
-    @JoinColumn(name = "user_id")
-    private Stack<CardCollectionEntity> cardCollectionHistory = new Stack<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CardCollectionHistoryEntity> cardCollectionHistory;
 
     @ManyToMany
     @JoinTable(name = "user_favorite_card_collections", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "card_collection_id"))
@@ -67,15 +66,6 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "owner")
     private List<CardCollectionEntity> ownedCardCollections;
-
-    // Methods to manage card history and favorited cards...
-    public void addToCardCollectionHistory(CardCollectionEntity card) {
-        cardCollectionHistory.push(card);
-    }
-
-    public CardCollectionEntity removeFromCardCollectionHistory() {
-        return cardCollectionHistory.isEmpty() ? null : cardCollectionHistory.pop();
-    }
 
     public void addToFavoritedCards(CardCollectionEntity card) {
         if (!favoritedCardCollections.contains(card)) {
@@ -89,5 +79,15 @@ public class UserEntity {
 
     public List<CardCollectionEntity> getOwnedCards() {
         return ownedCardCollections;
+    }
+
+    public void addToCardCollectionHistory(CardCollectionHistoryEntity history) {
+        cardCollectionHistory.add(history);
+        history.setUser(this);
+    }
+
+    public void removeFromCardCollectionHistory(CardCollectionHistoryEntity history) {
+        cardCollectionHistory.remove(history);
+        history.setUser(null);
     }
 }
