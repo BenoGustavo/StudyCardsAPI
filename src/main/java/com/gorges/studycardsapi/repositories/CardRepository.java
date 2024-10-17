@@ -13,7 +13,7 @@ public interface CardRepository extends JpaRepository<CardEntity, UUID> {
 
     Optional<CardEntity> findByIdAndIsPublicTrueAndDeletedAtIsNull(UUID id);
 
-    List<CardEntity> findByCardCollectionIdAndDeletedAtIsNull(UUID cardCollectionId);
+    List<CardEntity> findByCollectionIdAndDeletedAtIsNull(UUID collectionId); // Corrected method name
 
     List<CardEntity> findByOwnerIdAndIsPublicTrueAndDeletedAtIsNull(UUID ownerId);
 
